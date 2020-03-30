@@ -19,7 +19,7 @@ import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOption
 
 public class MainActivity extends AppCompatActivity {
 
-    Button b;
+    Button b,d;
     TextView t;
     boolean modelsDownloaded = false;
 
@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        d = (Button) findViewById(R.id.downloadButton);
+        t = (TextView) findViewById(R.id.textToXlate);
+        b = (Button) findViewById(R.id.xlateButton);
 
         // Create an English-Dutch translator:
         FirebaseTranslatorOptions options =
@@ -37,40 +40,44 @@ public class MainActivity extends AppCompatActivity {
         final FirebaseTranslator englishDutchTranslator =
                 FirebaseNaturalLanguage.getInstance().getTranslator(options);
 
-        FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
-                .requireWifi()
-                .build();
-        englishDutchTranslator.downloadModelIfNeeded(conditions)
-                .addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void v) {
-                                // Model downloaded successfully. Okay to start translating.
-                                modelsDownloaded = true;
-                                CharSequence text = "Model is downloaded.  You can translate!";
-                                int duration = Toast.LENGTH_SHORT;
+        // This listener will download the translator model
+        d.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
+                        .requireWifi()
+                        .build();
+                englishDutchTranslator.downloadModelIfNeeded(conditions)
+                        .addOnSuccessListener(
+                                new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void v) {
+                                        // Model downloaded successfully. Okay to start translating.
+                                        modelsDownloaded = true;
+                                        CharSequence text = "Model is downloaded.  You can translate!";
+                                        int duration = Toast.LENGTH_SHORT;
 
-                                Toast toast = Toast.makeText(getApplicationContext(), text, duration);
-                                toast.show();
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Model couldn’t be downloaded or other internal error.
-                                CharSequence text = "Error downloading model.";
-                                int duration = Toast.LENGTH_SHORT;
+                                        Toast toast = Toast.makeText(getApplicationContext(), text, duration);
+                                        toast.show();
+                                    }
+                                })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Model couldn’t be downloaded or other internal error.
+                                        CharSequence text = "Error downloading model.";
+                                        int duration = Toast.LENGTH_SHORT;
 
-                                Toast toast = Toast.makeText(getApplicationContext(), text, duration);
-                                toast.show();
-                            }
-                        });
+                                        Toast toast = Toast.makeText(getApplicationContext(), text, duration);
+                                        toast.show();
+                                    }
+                                });
+            }
+        });
 
 
-        //b = (Button) findViewById(R)
-        t = (TextView) findViewById(R.id.textToXlate);
-        b = (Button) findViewById(R.id.xlateButton);
+        // This listener will kick off the actual translation.
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
